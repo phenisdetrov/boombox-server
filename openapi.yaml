@@ -4,8 +4,6 @@ info:
   version: 0.1.0
   description: |
     User-facing API of Boombox-server.
-    After login, every request passes the token in the `Authorization: Bearer <token>` header.
-    Every error is returned in the unified `Error` format.
 
 paths:
   /api/v1/status:
@@ -16,36 +14,24 @@ paths:
         "200":
           description: Server is up
           content:
-            application/json:
-              schema:
-                type: object
-                required: [status, version]
-                properties:
-                  status:
-                    type: string
-                    enum: [OK]
-                  version:
-                    type: string
-                    example: 0.0.1
-        "500":
+            $ref: "components/responces/status"
+        "503":
           description: Server is down
           content:
-            application/json:
-              schema:
-                type: object
-                required: [status, version]
-                properties:
-                  status:
-                    type: string
-                    enum: [KO]
-                  version:
-                    type: string
-                    example: 0.0.1
+            $ref: "components/responces/status"
 
-  /api/v1/admin/create:
-    post:
-      summary: Create admin account
-
-
-
-references:
+components:
+  schemas:
+  responses:
+    status:
+      application/json:
+        schema:
+          type: object
+          required: [status, version]
+          properties:
+            status:
+              type: string
+              enum: [KO, OK]
+            version:
+              type: string
+              example: 0.0.1
