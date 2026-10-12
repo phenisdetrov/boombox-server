@@ -14,24 +14,93 @@ paths:
         "200":
           description: Server is up
           content:
-            $ref: "components/responces/status"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/statusGetResponse"
         "503":
           description: Server is down
           content:
-            $ref: "components/responces/status"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/statusGetResponse"
+
+  /api/v1/admin/create:
+    post:
+      summary: Create admin account
+      operationId: adminCreatePost
+      requestBody:
+        description: Create admin account request
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/adminCreatePostRequest"
+      responses:
+        "201":
+          description: Successfully created admin account
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/adminCreatePostResponce"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/adminCreatePostResponce"
+        "409":
+          description: Admin account already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/adminCreatePostResponce"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/adminCreatePostResponce"
+
 
 components:
   schemas:
-  responses:
-    status:
-      application/json:
-        schema:
+    statusGetResponse:
+      type: object
+      required: [status, version]
+      properties:
+        status:
+          type: string
+          enum: [OK, KO]
+        version:
+          type: string
+          example: 0.0.1
+    adminCreatePostRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          pattern: ^[A-Za-z0-9._-]$
+          minLength: 1
+          maxLength: 72
+        password:
+          type: string
+          pattern: ^[\x20-\x7E]$
+          minLength: 1
+          maxLength: 72
+    adminCreatePostResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
           type: object
-          required: [status, version]
+          required: [type, code, message]
           properties:
-            status:
+            type:
               type: string
-              enum: [KO, OK]
-            version:
+              enum: [OK, KO]
+            code:
               type: string
-              example: 0.0.1
+              enum: [SUCCESS, BAD_REQUEST, ADMIN_EXISTS, INTERNAL_ERR ]
+            message:
+              type: string
+              enum: [Admin account succesfully created, Your request is not accords to contract, Admin account already exists, Internal server error]
