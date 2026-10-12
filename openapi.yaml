@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Boombox API
-  version: 0.1.0
+  version: 0.0.1
   description: |
     User-facing API of Boombox-server.
 
@@ -30,35 +30,36 @@ paths:
       operationId: adminCreatePost
       requestBody:
         description: Create admin account request
+        required: true
         content:
           application/json:
             schema:
-              $ref: "#components/schemas/adminCreatePostRequest"
+              $ref: "#/components/schemas/adminCreatePostRequest"
       responses:
         "201":
           description: Successfully created admin account
           content:
             application/json:
               schema:
-                $ref: "#components/schemas/adminCreatePostResponce"
+                $ref: "#/components/schemas/adminCreatePostResponse"
         "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: "#components/schemas/adminCreatePostResponce"
+                $ref: "#/components/schemas/adminCreatePostResponse"
         "409":
           description: Admin account already exists
           content:
             application/json:
               schema:
-                $ref: "#components/schemas/adminCreatePostResponce"
+                $ref: "#/components/schemas/adminCreatePostResponse"
         "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#components/schemas/adminCreatePostResponce"
+                $ref: "#/components/schemas/adminCreatePostResponse"
 
 
 components:
@@ -79,13 +80,11 @@ components:
       properties:
         username:
           type: string
-          pattern: ^[A-Za-z0-9._-]$
-          minLength: 1
+          pattern: ^[A-Za-z0-9._-]+$
           maxLength: 72
         password:
           type: string
-          pattern: ^[\x20-\x7E]$
-          minLength: 1
+          pattern: ^[\x20-\x7E]+$
           maxLength: 72
     adminCreatePostResponse:
       type: object
@@ -103,4 +102,3 @@ components:
               enum: [SUCCESS, BAD_REQUEST, ADMIN_EXISTS, INTERNAL_ERR ]
             message:
               type: string
-              enum: [Admin account succesfully created, Your request is not accords to contract, Admin account already exists, Internal server error]
