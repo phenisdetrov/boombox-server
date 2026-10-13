@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/phenisdetrov/boombox-server/internal/get"
+	"github.com/phenisdetrov/boombox-server/internal/config"
 )
 
 func StatusGet(w http.ResponseWriter, r *http.Request) {
@@ -14,7 +14,7 @@ func StatusGet(w http.ResponseWriter, r *http.Request) {
 	}
 	var response statusGetResponse
 	response.Status = "OK"
-	response.Version = get.VERSION
+	response.Version = config.VERSION
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }

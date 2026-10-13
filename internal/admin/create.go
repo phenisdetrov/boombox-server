@@ -1,15 +1,15 @@
 package admin
 
 import (
-    "net/http"
-    "encoding/json"
+	"encoding/json"
+	"net/http"
 
-    "golang.org/x/crypto/bcrypt"
+	"golang.org/x/crypto/bcrypt"
 
-    "github.com/phenisdetrov/boombox-server/internal/respond"
+	"github.com/phenisdetrov/boombox-server/internal/respond"
 )
 
-var adminUsername string // создал здесь переменные чисто чтобы не висели ошибки - после рефактора все перенесем в Postgres
+var adminUsername string
 var adminPasswordHash []byte
 var adminCreated bool
 
@@ -25,11 +25,11 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		respond.WriteStatus(w, http.StatusBadRequest, "KO", "BAD_REQUEST", "Request expressed not according to contract")
 		return
 	}
-	if !CheckCredentials(request.Username, request.Password) {
+	if !checkCredentials(request.Username, request.Password) {
 		respond.WriteStatus(w, http.StatusBadRequest, "KO", "BAD_REQUEST", "Request expressed not according to contract")
 		return
 	}
-	if adminCreated == true {
+	if adminCreated {
 		respond.WriteStatus(w, http.StatusConflict, "KO", "ADMIN_EXISTS", "Admin account already created")
 		return
 	}

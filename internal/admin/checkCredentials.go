@@ -1,11 +1,11 @@
 package admin
 
 import (
-    "github.com/phenisdetrov/boombox-server/internal/get"
+	"github.com/phenisdetrov/boombox-server/internal/config"
 )
 
-func CheckCredentials(username, password string) bool {
-	if !get.UsernameRegexp.MatchString(username) || !get.PasswordRegexp.MatchString(password) {
+func checkCredentials(username, password string) bool {
+	if !config.UsernameRegexp.MatchString(username) || !config.PasswordRegexp.MatchString(password) {
 		return false
 	}
 	if len(username) > 72 || len(password) > 72 {
