@@ -12,11 +12,29 @@ const version = "0.0.1"
 var adminUsername string
 var adminPassword string
 
+type Status struct {
+	Type    string `json:"type"`
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+type StatusBody struct {
+	Status Status `json:"status"`
+}
+
 func main() {
 	http.HandleFunc("GET /api/v1/status", statusGet)
 	http.HandleFunc("POST /api/v1/admin/create", adminCreatePost)
 
 	log.Fatal(http.ListenAndServe(listenAddr, nil))
+}
+
+func writeStatus(w http.ResponseWriter, httpCode int, typ, code, message string) {
+	var response StatusBody
+	response.Status.Type, response.Status.Code, response.Status.Message = typ, code, message
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(httpCode)
+	json.NewEncoder(w).Encode(response)
+
 }
 
 func statusGet(w http.ResponseWriter, r *http.Request) {
@@ -36,32 +54,17 @@ func adminCreatePost(w http.ResponseWriter, r *http.Request) {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	}
-	type adminCreatePostResponse struct {
-		Type    string `json:"type"`
-		Code    string `json:"code"`
-		Message string `json:"message"`
-	}
 	var request adminCreatePostRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
 
-	var response adminCreatePostResponse
-	w.Header().Set("Content-Type", "application/json")
-
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response.Type, response.Code, response.Message = "KO", "BAD_REQUEST", "Request expressed not according to contract"
-		json.NewEncoder(w).Encode(response)
+		writeStatus(w, http.StatusBadRequest, "KO", "BAD_REQUEST", "Request expressed not according to contract")
 		return
 	}
 	if adminUsername != "" {
-		w.WriteHeader(http.StatusConflict)
-		response.Type, response.Code, response.Message = "KO", "ADMIN_EXISTS", "Admin account already created"
-		json.NewEncoder(w).Encode(response)
+		writeStatus(w, http.StatusConflict, "KO", "ADMIN_EXISTS", "Admin account already created")
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
-	response.Type, response.Code, response.Message = "OK", "SUCCESS", "Admin account successfully created"
-	json.NewEncoder(w).Encode(response)
-	adminUsername = request.Username
-	adminPassword = request.Password
+	adminUsername, adminPassword = request.Username, request.Password
+	writeStatus(w, http.StatusCreated, "OK", "SUCCESS", "Admin account successfully created")
 }
