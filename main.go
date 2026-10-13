@@ -4,13 +4,18 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"regexp"
 )
 
 const listenAddr = "10.0.0.1:20000"
 const version = "0.0.1"
 
+var usernameRegexp = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
+var passwordRegexp = regexp.MustCompile(`^[\x20-\x7E]+$`)
+
 var adminUsername string
 var adminPassword string
+var adminCreated bool
 
 type status struct {
 	Type    string `json:"type"`
@@ -28,12 +33,22 @@ func main() {
 	log.Fatal(http.ListenAndServe(listenAddr, nil))
 }
 
-func writeStatus(w http.ResponseWriter, httpCode int, typ, code, message string) {
+func helperWriteStatus(w http.ResponseWriter, httpCode int, typ, code, message string) {
 	var response statusBody
 	response.Status.Type, response.Status.Code, response.Status.Message = typ, code, message
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(httpCode)
 	json.NewEncoder(w).Encode(response)
+}
+
+func helperValidCredentials(username, password string) bool {
+	if !usernameRegexp.MatchString(username) || !passwordRegexp.MatchString(password) {
+		return false
+	}
+	if len(username) > 72 || len(password) > 72 {
+		return false
+	}
+	return true
 }
 
 func statusGet(w http.ResponseWriter, r *http.Request) {
@@ -54,16 +69,20 @@ func adminCreatePost(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 	}
 	var request adminCreatePostRequest
-	err := json.NewDecoder(r.Body).Decode(&request)
+	jsonValid := json.NewDecoder(r.Body).Decode(&request)
 
-	if err != nil {
-		writeStatus(w, http.StatusBadRequest, "KO", "BAD_REQUEST", "Request expressed not according to contract")
+	if jsonValid != nil {
+		helperWriteStatus(w, http.StatusBadRequest, "KO", "BAD_REQUEST", "Request expressed not according to contract")
 		return
 	}
-	if adminUsername != "" {
-		writeStatus(w, http.StatusConflict, "KO", "ADMIN_EXISTS", "Admin account already created")
+	if !helperValidCredentials(request.Username, request.Password) {
+		helperWriteStatus(w, http.StatusBadRequest, "KO", "BAD_REQUEST", "Request expressed not according to contract")
 		return
 	}
-	adminUsername, adminPassword = request.Username, request.Password
-	writeStatus(w, http.StatusCreated, "OK", "SUCCESS", "Admin account successfully created")
+	if adminCreated {
+		helperWriteStatus(w, http.StatusConflict, "KO", "ADMIN_EXISTS", "Admin account already created")
+		return
+	}
+	adminUsername, adminPassword, adminCreated = request.Username, request.Password, true
+	helperWriteStatus(w, http.StatusCreated, "OK", "SUCCESS", "Admin account successfully created")
 }
