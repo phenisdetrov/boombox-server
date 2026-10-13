@@ -69,9 +69,9 @@ func adminCreatePost(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 	}
 	var request adminCreatePostRequest
-	jsonValid := json.NewDecoder(r.Body).Decode(&request)
+	jsonParseErr := json.NewDecoder(r.Body).Decode(&request)
 
-	if jsonValid != nil {
+	if jsonParseErr != nil {
 		helperWriteStatus(w, http.StatusBadRequest, "KO", "BAD_REQUEST", "Request expressed not according to contract")
 		return
 	}
