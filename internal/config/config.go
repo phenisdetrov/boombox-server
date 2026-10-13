@@ -7,5 +7,5 @@ import (
 const LISTEN = "10.0.0.1:20000"
 const VERSION = "0.0.1"
 
-var UsernameRegexp = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
-var PasswordRegexp = regexp.MustCompile(`^[\x20-\x7E]+$`)
+var UsernameRegexp = regexp.MustCompile(`^[A-Za-z0-9._-]{1,72}$`)
+var PasswordRegexp = regexp.MustCompile(`^[\x20-\x7E]{1,72}$`)

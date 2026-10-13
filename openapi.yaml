@@ -17,12 +17,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/statusGetResponse"
-        "503":
-          description: Server is down
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/statusGetResponse"
 
   /api/v1/admin/create:
     post:
@@ -61,17 +55,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/adminCreatePostResponse"
 
-
 components:
   schemas:
     statusGetResponse:
       type: object
-      required: [status, version]
+      required: [status, payload]
       properties:
         status:
-          type: string
-          enum: [OK, KO]
-        version:
+          type: object
+          required: [type, code, message]
+          properties:
+            type:
+              type: string
+              enum: [OK]
+            code:
+              type: string
+              enum: [SUCCESS]
+            message:
+              type: string
+        payload:
           type: string
           example: 0.0.1
     adminCreatePostRequest:
@@ -80,12 +82,10 @@ components:
       properties:
         username:
           type: string
-          pattern: ^[A-Za-z0-9._-]+$
-          maxLength: 72
+          pattern: ^[A-Za-z0-9._-]{1,72}$
         password:
           type: string
-          pattern: ^[\x20-\x7E]+$
-          maxLength: 72
+          pattern: ^[\x20-\x7E]{1,72}$
     adminCreatePostResponse:
       type: object
       required: [status]

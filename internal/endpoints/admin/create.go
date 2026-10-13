@@ -22,22 +22,22 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	jsonParseErr := json.NewDecoder(r.Body).Decode(&request)
 
 	if jsonParseErr != nil {
-		respond.WriteStatus(w, http.StatusBadRequest, "KO", "BAD_REQUEST", "Request expressed not according to contract")
+		respond.WriteWithStatus(w, http.StatusBadRequest, "KO", "BAD_REQUEST", "Request expressed not according to contract", nil)
 		return
 	}
-	if !checkCredentials(request.Username, request.Password) {
-		respond.WriteStatus(w, http.StatusBadRequest, "KO", "BAD_REQUEST", "Request expressed not according to contract")
+	if !credentials(request.Username, request.Password) {
+		respond.WriteWithStatus(w, http.StatusBadRequest, "KO", "BAD_REQUEST", "Request expressed not according to contract", nil)
 		return
 	}
 	if adminCreated {
-		respond.WriteStatus(w, http.StatusConflict, "KO", "ADMIN_EXISTS", "Admin account already created")
+		respond.WriteWithStatus(w, http.StatusConflict, "KO", "ADMIN_EXISTS", "Admin account already created", nil)
 		return
 	}
 	hash, bcryptHashGenErr := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if bcryptHashGenErr != nil {
-		respond.WriteStatus(w, http.StatusInternalServerError, "KO", "INTERNAL_ERR", "Internal server error during managing admin credentials")
+		respond.WriteWithStatus(w, http.StatusInternalServerError, "KO", "INTERNAL_ERR", "Internal server error during managing admin credentials", nil)
 		return
 	}
 	adminUsername, adminPasswordHash, adminCreated = request.Username, hash, true
-	respond.WriteStatus(w, http.StatusCreated, "OK", "SUCCESS", "Admin account successfully created")
+	respond.WriteWithStatus(w, http.StatusCreated, "OK", "SUCCESS", "Admin account successfully created", nil)
 }
