@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 const listenAddr = "10.0.0.1:20000"
@@ -14,7 +16,7 @@ var usernameRegexp = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
 var passwordRegexp = regexp.MustCompile(`^[\x20-\x7E]+$`)
 
 var adminUsername string
-var adminPassword string
+var adminPasswordHash []byte
 var adminCreated bool
 
 type status struct {
@@ -83,6 +85,11 @@ func adminCreatePost(w http.ResponseWriter, r *http.Request) {
 		helperWriteStatus(w, http.StatusConflict, "KO", "ADMIN_EXISTS", "Admin account already created")
 		return
 	}
-	adminUsername, adminPassword, adminCreated = request.Username, request.Password, true
+	hash, bcryptHashGenErr := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
+	if bcryptHashGenErr != nil {
+		helperWriteStatus(w, http.StatusInternalServerError, "KO", "INTERNAL_ERR", "Internal server error during managing admin credentials")
+		return
+	}
+	adminCreated, adminUsername, adminPasswordHash = true, request.Username, hash
 	helperWriteStatus(w, http.StatusCreated, "OK", "SUCCESS", "Admin account successfully created")
 }
