@@ -12,13 +12,13 @@ const version = "0.0.1"
 var adminUsername string
 var adminPassword string
 
-type Status struct {
+type status struct {
 	Type    string `json:"type"`
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }
-type StatusBody struct {
-	Status Status `json:"status"`
+type statusBody struct {
+	Status status `json:"status"`
 }
 
 func main() {
@@ -29,12 +29,11 @@ func main() {
 }
 
 func writeStatus(w http.ResponseWriter, httpCode int, typ, code, message string) {
-	var response StatusBody
+	var response statusBody
 	response.Status.Type, response.Status.Code, response.Status.Message = typ, code, message
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(httpCode)
 	json.NewEncoder(w).Encode(response)
-
 }
 
 func statusGet(w http.ResponseWriter, r *http.Request) {
