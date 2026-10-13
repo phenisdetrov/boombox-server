@@ -4,9 +4,6 @@ import (
 	"github.com/phenisdetrov/boombox-server/internal/config"
 )
 
-func credentials(username, password string) bool {
-	if !config.UsernameRegexp.MatchString(username) || !config.PasswordRegexp.MatchString(password) {
-		return false
-	}
-	return true
+func checkCredentials(username, password string) bool {
+	return config.UsernameRegexp.MatchString(username) && config.PasswordRegexp.MatchString(password)
 }

@@ -74,8 +74,12 @@ components:
             message:
               type: string
         payload:
-          type: string
-          example: 0.0.1
+          type: object
+          required: [version]
+          properties:
+            version:
+              type: string
+              example: 0.0.1
     adminCreatePostRequest:
       type: object
       required: [username, password]

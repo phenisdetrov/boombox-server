@@ -25,7 +25,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		respond.WriteWithStatus(w, http.StatusBadRequest, "KO", "BAD_REQUEST", "Request expressed not according to contract", nil)
 		return
 	}
-	if !credentials(request.Username, request.Password) {
+	if !checkCredentials(request.Username, request.Password) {
 		respond.WriteWithStatus(w, http.StatusBadRequest, "KO", "BAD_REQUEST", "Request expressed not according to contract", nil)
 		return
 	}
